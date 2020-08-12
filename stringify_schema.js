@@ -206,9 +206,9 @@ const generateFormat = (payload) => {
 function addExtendProperty(props = {}) {
   const orignProps = defaultSchemas.info.properties;
   // eslint-disable-next-line no-restricted-syntax
-  for (const key of props) {
+  Object.keys(props).forEach((key) => {
     orignProps[key] = props[key];
-  }
+  });
 }
 module.exports = {
   defaultSchemas,
