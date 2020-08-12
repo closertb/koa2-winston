@@ -2,11 +2,13 @@
 const winston = require('winston');
 const onFinished = require('on-finished');
 const { format } = require('util');
+const dayJs = require('dayjs');
 
 const {
   generateSchema,
   generateFormat,
   defaultSchemas,
+  addExtendProperty,
 } = require('./stringify_schema');
 
 const {
@@ -82,8 +84,11 @@ const logger = (payload = {}) => {
     transports = [new winston.transports.Stream({ stream: process.stdout })],
     level: defaultLevel = C.INFO,
     msg = C.MSG,
+    addExtendInfo = () => ({}),
   } = payload;
 
+  // 避免winston 不兼容，所以用了就删除调这个属性
+  delete payload.addExtendInfo;
   // @ts-ignore
   const stringifyFormat = generateFormat(payload);
   const winstonLogger = payload.logger
@@ -94,15 +99,20 @@ const logger = (payload = {}) => {
 
   const onResponseFinished = (ctx, info) => {
     info.res = ctx.response;
-    info.duration = Date.now() - info.started_at;
-
+    // eslint-disable-next-line no-underscore-dangle
+    info.duration = Date.now() - info._started_at;
     info.level = getLogLevel(info.res.status, defaultLevel);
     // @ts-ignore
     winstonLogger.log(info);
   };
 
   return async (ctx, next) => {
-    const info = { req: ctx.request, started_at: Date.now() };
+    const info = {
+      req: ctx.request,
+      started_at: dayJs().format('YYYY-MM-DD HH:mm:ss'),
+      _started_at: Date.now(),
+      ...addExtendInfo(ctx),
+    };
     info.message = format(msg, info.req.method, info.req.url);
 
     let error;
@@ -127,4 +137,5 @@ module.exports = {
   generateSchema,
   generateFormat,
   defaultSchemas,
+  addExtendProperty,
 };

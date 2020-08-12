@@ -65,7 +65,7 @@ const defaultSchemas = {
     },
     type: 'object',
     properties: {
-      started_at: { type: 'integer' },
+      started_at: { type: 'string' },
       duration: { type: 'integer' },
       level: { type: 'string' },
       message: { type: 'string' },
@@ -203,9 +203,17 @@ const generateFormat = (payload) => {
   };
 };
 
+function addExtendProperty(props = {}) {
+  const orignProps = defaultSchemas.info.properties;
+  // eslint-disable-next-line no-restricted-syntax
+  for (const key of props) {
+    orignProps[key] = props[key];
+  }
+}
 module.exports = {
   defaultSchemas,
   generateSchema,
   generateFormat,
   asJsonSchemaPath,
+  addExtendProperty,
 };

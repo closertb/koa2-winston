@@ -1,22 +1,27 @@
-# koa2-winston
+# @doddle/koa-winston
 
-[![Travis](https://img.shields.io/travis/yidinghan/koa2-winston.svg?style=flat-square)](https://www.npmjs.com/package/koa2-winston)
-[![npm](https://img.shields.io/npm/l/koa2-winston.svg?style=flat-square)](https://www.npmjs.com/package/koa2-winston)
-[![npm](https://img.shields.io/npm/v/koa2-winston.svg?style=flat-square)](https://www.npmjs.com/package/koa2-winston)
-[![npm](https://img.shields.io/npm/dm/koa2-winston.svg?style=flat-square)](https://www.npmjs.com/package/koa2-winston)
-[![David](https://img.shields.io/david/yidinghan/koa2-winston.svg?style=flat-square)](https://www.npmjs.com/package/koa2-winston)
-[![David](https://img.shields.io/david/dev/yidinghan/koa2-winston.svg?style=flat-square)](https://www.npmjs.com/package/koa2-winston)
-[![node](https://img.shields.io/node/v/koa2-winston.svg?style=flat-square)](https://www.npmjs.com/package/koa2-winston)
+<font color="red" size="5">two point</font>
+
+ - base on koa2-winston，add self define log info function, [see here](#examples-1)；
+ - and change the date output key `start_at` with the format `YYYY-MM-DD HH:mm:ss`
+
+[![Travis](https://img.shields.io/travis/yidinghan/koa2-winston.svg?style=flat-square)](https://www.npmjs.com/package/@doddle/koa-winston)
+[![npm](https://img.shields.io/npm/l/koa2-winston.svg?style=flat-square)](https://www.npmjs.com/package/@doddle/koa-winston)
+[![npm](https://img.shields.io/npm/v/koa2-winston.svg?style=flat-square)](https://www.npmjs.com/package/@doddle/koa-winston)
+[![npm](https://img.shields.io/npm/dm/koa2-winston.svg?style=flat-square)](https://www.npmjs.com/package/@doddle/koa-winston)
+[![David](https://img.shields.io/david/yidinghan/koa2-winston.svg?style=flat-square)](https://www.npmjs.com/package/@doddle/koa-winston)
+[![David](https://img.shields.io/david/dev/yidinghan/koa2-winston.svg?style=flat-square)](https://www.npmjs.com/package/@doddle/koa-winston)
+[![node](https://img.shields.io/node/v/koa2-winston.svg?style=flat-square)](https://www.npmjs.com/package/@doddle/koa-winston)
 
 koa2 version winston logger like [express-winston](https://github.com/bithavoc/express-winston)
 
 Add logger to your koa2 server in 3 lines
 
-[中文介绍](https://github.com/yidinghan/koa2-winston/blob/master/README.CN.md)
+[中文介绍](https://github.com/closertb/koa2-winston/blob/master/README.CN.md)
 
 <!-- TOC -->
 
-- [koa2-winston](#koa2-winston)
+- [@doddle/koa-winston](#@doddle/koa-winston)
 - [Usage](#usage)
   - [Installation](#installation)
   - [Quick Start](#quick-start)
@@ -36,7 +41,7 @@ Add logger to your koa2 server in 3 lines
     - [Table of Contents](#table-of-contents)
   - [logger](#logger)
     - [Parameters](#parameters)
-    - [Examples](#examples-1)
+    - [Examples](#examples-2)
   - [asJsonSchemaPath](#asjsonschemapath)
     - [Parameters](#parameters-1)
   - [ensureTypeObject](#ensuretypeobject)
@@ -55,13 +60,13 @@ Add logger to your koa2 server in 3 lines
 ## Installation
 
 ```shell
-npm i --save koa2-winston
+npm i --save @doddle/koa-winston
 ```
 
 ## Quick Start
 
 ```js
-const { logger } = require('koa2-winston');
+const { logger } = require('@doddle/koa-winston');
 app.use(logger());
 ```
 
@@ -122,6 +127,7 @@ app.use(
     resKeys: ['header', 'status'],
     resSelect: [],
     resUnselect: [],
+    addExtentinfo: (ctx) => ({ user: ctx.user }),
   })
 );
 ```
@@ -145,7 +151,7 @@ The req object will be empty
 ```json
 {
   "req": {},
-  "started_at": 1494486039864,
+  "started_at": "YYYY-MM-DD HH:mm:ss",
   "res": {
     "header": {
       "content-type": "text/plain; charset=utf-8",
@@ -185,7 +191,7 @@ The res object will be empty
     "href": "http://127.0.0.1:59534/",
     "query": {}
   },
-  "started_at": 1494486039864,
+  "started_at": "YYYY-MM-DD HH:mm:ss",
   "res": {},
   "duration": 26,
   "level": "info",
@@ -218,7 +224,7 @@ The UA of request will be ignored
     "href": "http://127.0.0.1:59534/",
     "query": {}
   },
-  "started_at": 1494486039864,
+  "started_at": "YYYY-MM-DD HH:mm:ss",
   "res": {
     "header": {
       "content-type": "text/plain; charset=utf-8",
@@ -257,7 +263,7 @@ The `success` field on `body` will be recorded
     "href": "http://127.0.0.1:59534/",
     "query": {}
   },
-  "started_at": 1494486039864,
+  "started_at": "YYYY-MM-DD HH:mm:ss",
   "res": {
     "header": {
       "content-type": "text/plain; charset=utf-8",
@@ -268,6 +274,44 @@ The `success` field on `body` will be recorded
       // Any possible value given by the server
       "success": false
     }
+  },
+  "duration": 26,
+  "level": "info",
+  "message": "HTTP GET /"
+}
+```
+## Examples
+### add extend info
+
+```js
+const { logger, addExtendProperty } = require('');
+
+addExtendProperty({
+  author_name: { type: 'string' }
+})
+
+app.use(
+  logger({
+    addExtendInfo: (ctx) => ({
+      author_name: ctx.user && ctx.user.name,
+  }),
+  })
+);
+```
+
+The req object will be empty
+
+```json
+{
+  "req": {},
+  "started_at": "YYYY-MM-DD HH:mm:ss",
+  "author_name": "doddle",
+  "res": {
+    "header": {
+      "content-type": "text/plain; charset=utf-8",
+      "content-length": "8"
+    },
+    "status": 200
   },
   "duration": 26,
   "level": "info",
@@ -287,7 +331,7 @@ middleware x 112,011 ops/sec ±10.26% (18 runs sampled)
 
 ## Schema Stringify
 
-With [fast-json-stringify](https://github.com/fastify/fast-json-stringify) support, default transport [logger](https://github.com/yidinghan/koa2-winston/blob/master/fast_json_console.js) is much faster
+With [fast-json-stringify](https://github.com/fastify/fast-json-stringify) support, default transport [logger](https://github.com/closertb/koa2-winston/blob/master/fast_json_console.js) is much faster
 
 ```sh
 total ops/sec { jsonstringify: 73544 }
@@ -311,7 +355,7 @@ total ops/sec { 'v2.4.0': 131234 }
 
 ## Math.floor vs parseInt
 
-Related commit in [ HERE ](https://github.com/yidinghan/koa2-winston/commit/d8fdda25f114810b225e4683137fdd39b5a27134)
+Related commit in [ HERE ](https://github.com/closertb/koa2-winston/commit/d8fdda25f114810b225e4683137fdd39b5a27134)
 
 JSPerf link in [ HERE ](https://jsperf.com/minimum-multiple)
 
@@ -330,11 +374,11 @@ Math.floor(401 / 100) { 810,032,369 Ops/sec }
 
 Finally, winston v3 support. But winston will install as dependencies not peerDependencies.
 
-With better backward compatibility, users don't have to worry about the new version of koa2-winston will conflict with other winston usage in the project.
+With better backward compatibility, users don't have to worry about the new version of @doddle/koa-winston will conflict with other winston usage in the project.
 
 ## v3.1
 
-The **`fastest`** koa2-winston ever. Nearly `3x` faster than previous versions.
+The **`fastest`** @doddle/koa-winston ever. Nearly `3x` faster than previous versions.
 
 ```sh
 total ops/sec { 'v3.0.2': 180020 }
@@ -396,7 +440,7 @@ logger middleware for koa2 use winston
 ### Examples
 
 ```javascript
-const { logger } = require('koa2-winston');
+const { logger } = require('@doddle/koa-winston');
 app.use(logger());
 // request logger look like down here
 // {
@@ -412,7 +456,7 @@ app.use(logger());
 //     "href": "http://127.0.0.1:59534/",
 //     "query": {}
 //   },
-//   "started_at": 1494486039864,
+//   "started_at": "YYYY-MM-DD HH:mm:ss",
 //   "res": {
 //     "header": {
 //       "content-type": "text/plain; charset=utf-8",
